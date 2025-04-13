@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<style>
+  body {
+    font-family: "Montserrat", sans-serif;
+    /* Calmer Gemini-inspired gradient */
+    background: linear-gradient(135deg, #bbdefb, #a5d6a7, #ffe082, #ffab91);
+    background-size: 300% 300%; /* Slightly smaller for slower shifts */
+    animation: gradientAnimation 60s ease infinite; /* Slower animation speed */
+    margin: 0;
+    padding: 20px;
+    color: #37474f; /* Darker, study-friendly text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  h1 {
+    text-align: center;
+    color: #1e88e5; /* More focused blue */
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15); /* Subtler shadow */
+    /* Calmer glow */
+    /* text-shadow: 0 0 5px #64b5f6, 0 0 10px #81c784, 0 0 15px #ffe57f,
+      0 0 20px #ffccbc, 1px 1px 3px rgba(0, 0, 0, 0.2); */
+  }
+
+  #input-area {
+    background-color: rgba(255, 255, 255, 0.95); /* Slightly more opaque */
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    margin-bottom: 30px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #263238;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    width: calc(100% - 22px);
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #bdbdbd;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus {
+    border-color: #1976d2;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05),
+      0 0 8px rgba(25, 118, 210, 0.2);
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    padding: 14px 24px;
+    background-color: #1976d2;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  button:hover {
+    background-color: #1565c0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  #output-area {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    margin-top: 30px;
+  }
+
+  h2 {
+    text-align: center;
+    color: #263238;
+    margin-bottom: 25px;
+    letter-spacing: 1.2px;
+    border-bottom: 2px solid #90caf9; /* Softer blue */
+    padding-bottom: 10px;
+  }
+
+  #quiz-container {
+    margin-top: 20px;
+  }
+
+  .question {
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid #cfd8dc;
+    border-radius: 10px;
+    background-color: #f9f9f9; /* Lighter background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .question h3 {
+    margin-top: 0;
+    color: #1e88e5; /* Focused blue */
+    margin-bottom: 10px;
+  }
+
+  .question ul {
+    list-style-type: none;
+    padding: 0;
+    margin-left: 15px;
+  }
+
+  .question li {
+    margin-bottom: 8px;
+    color: #4a4a4a;
+  }
+
+  .question strong {
+    color: #388e3c;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  #loading {
+    text-align: center;
+    margin-top: 25px;
+    font-style: italic;
+    color: #757575; /* Darker loading text */
+  }
+
+  #error-area {
+    text-align: center;
+    margin-top: 20px;
+    color: #ef5350; /* Calmer red */
+    font-weight: bold;
+  }
+
+  body::before,
+  body::after {
+    content: none;
+  }
+
+.dark-mode-switch {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.dark-mode-switch input[type="checkbox"] {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.dark-mode-switch label {
+  cursor: pointer;
+  text-indent: -9999px;
+  width: 50px;
+  height: 25px;
+  background: #ccc;
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
+
+.dark-mode-switch label:after {
+  position: absolute;
+  content: '';
+  background: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: 0.3s;
+}
+
+.dark-mode-switch input:checked + label {
+  background: #333;
+}
+
+.dark-mode-switch input:checked + label:after {
+  left: calc(100% - 23px);
+}
+
+/* Dark Mode Styles */
+body:has(#darkModeToggle:checked) {
+  background: #121212;
+  color: #eee;
+}
+
+body:has(#darkModeToggle:checked) h1 {
+  color: #bb86fc;
+  text-shadow: 1px 1px 2px #000;
+}
+
+body:has(#darkModeToggle:checked) #input-area,
+body:has(#darkModeToggle:checked) #output-area,
+body:has(#darkModeToggle:checked) .question {
+  background-color: #1e1e1e;
+  border-color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+body:has(#darkModeToggle:checked) label {
+  color: #eee;
+}
+
+body:has(#darkModeToggle:checked) input[type="text"],
+body:has(#darkModeToggle:checked) input[type="number"] {
+  background-color: #333;
+  color: #eee;
+  border-color: #555;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+body:has(#darkModeToggle:checked) input[type="text"]:focus,
+body:has(#darkModeToggle:checked) input[type="number"]:focus {
+  border-color: #bb86fc;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 8px rgba(187, 134, 252, 0.4);
+}
+
+body:has(#darkModeToggle:checked) button {
+  background-color: #bb86fc;
+  color: #000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+body:has(#darkModeToggle:checked) button:hover {
+  background-color: #9c27b0;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+}
+
+body:has(#darkModeToggle:checked) h2 {
+  color: #eee;
+  border-bottom-color: #bb86fc;
+}
+
+body:has(#darkModeToggle:checked) .question h3 {
+  color: #bb86fc;
+}
+
+body:has(#darkModeToggle:checked) .question strong {
+  color: #8bc34a;
+}
+
+body:has(#darkModeToggle:checked) #loading {
+  color: #ccc;
+}
+
+body:has(#darkModeToggle:checked) #error-area {
+  color: #f44336;
+}
+
+.theme-toggle-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10; /* Ensure it's above other elements */
+}
+
+.theme-toggle-container input[type="checkbox"] {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.theme-toggle-container label {
+  cursor: pointer;
+  display: inline-block;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+  color: #fff;
+  font-weight: bold;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle-container label:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.theme-toggle-container input:checked + label {
+  background: rgba(51, 51, 51, 0.7); /* Darker background when dark mode is on */
+  color: #bb86fc;
+  border-color: rgba(187, 134, 252, 0.3);
+}
+
+/* Dark Mode Styles (Adjusted for the new toggle) */
+body:has(.theme-toggle-container input:checked) {
+  background: #121212;
+  color: #eee;
+}
+
+body:has(.theme-toggle-container input:checked) h1 {
+  color: #bb86fc;
+  text-shadow: 1px 1px 2px #000;
+}
+
+body:has(.theme-toggle-container input:checked) #input-area,
+body:has(.theme-toggle-container input:checked) #output-area,
+body:has(.theme-toggle-container input:checked) .question {
+  background-color: #1e1e1e;
+  border-color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* body:has(.theme-toggle-container input:checked) label {
+  /* Keep the label styling in the toggle container */
+/* } */ 
+
+body:has(.theme-toggle-container input:checked) input[type="text"],
+body:has(.theme-toggle-container input:checked) input[type="number"] {
+  background-color: #333;
+  color: #eee;
+  border-color: #555;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+body:has(.theme-toggle-container input:checked) input[type="text"]:focus,
+body:has(.theme-toggle-container input:checked) input[type="number"]:focus {
+  border-color: #bb86fc;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 8px rgba(187, 134, 252, 0.4);
+}
+
+body:has(.theme-toggle-container input:checked) button {
+  background-color: #bb86fc;
+  color: #000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+body:has(.theme-toggle-container input:checked) button:hover {
+  background-color: #9c27b0;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+}
+
+body:has(.theme-toggle-container input:checked) h2 {
+  color: #eee;
+  border-bottom-color: #bb86fc;
+}
+
+body:has(.theme-toggle-container input:checked) .question h3 {
+  color: #bb86fc;
+}
+
+body:has(.theme-toggle-container input:checked) .question strong {
+  color: #8bc34a;
+}
+
+body:has(.theme-toggle-container input:checked) #loading {
+  color: #ccc;
+}
+
+body:has(.theme-toggle-container input:checked) #error-area {
+  color: #f44336;
+}
+body:has(.theme-toggle-container input:checked) .question li {
+  color: #ccc; /* A lighter gray */
+}
+
+/* Remove the old dark-mode-switch styles if you prefer */
+.dark-mode-switch {
+  display: none; /* Hide the old switch */
+}
+</style>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Quiz Maker</title>
+  </head>
+  <body>
+    <div class="theme-toggle-container">
+      <input type="checkbox" id="darkModeToggle">
+      <label for="darkModeToggle">Theme</label>
+    </div>
+    <h1>AI Quiz Maker</h1>
+
+    <div id="input-area">
+      <label for="quiz-topic">Enter Quiz Topic:</label>
+      <input
+        type="text"
+        id="quiz-topic"
+        placeholder="e.g., World Capitals, History of Science"
+      />
+
+      <label for="num-questions">Number of Questions:</label>
+      <input type="number" id="num-questions" min="1" value="5" />
+
+      <button id="generate-quiz-button">Generate Quiz</button>
+      <!-- <div class="dark-mode-switch">
+        <input type="checkbox" id="darkModeToggle">
+        <label for="darkModeToggle">Dark Mode</label>
+      </div> -->
+    </div>
+    </div>
+
+    <div id="output-area" class="hidden">
+      <h2>Generated Quiz</h2>
+      <div id="quiz-container"></div>
+      <div id="loading" class="hidden">Generating Quiz...</div>
+    </div>
+
+    <div id="error-area" style="color: red"></div>
+
+    <script>
+      const generateQuizButton = document.getElementById(
+        "generate-quiz-button"
+      );
+      const quizTopicInput = document.getElementById("quiz-topic");
+      const numQuestionsInput = document.getElementById("num-questions");
+      const quizContainer = document.getElementById("quiz-container");
+      const outputArea = document.getElementById("output-area");
+      const loading = document.getElementById("loading");
+      const errorArea = document.getElementById("error-area");
+
+      const API_KEY =
+        "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"; // STILL A SECURITY RISK!
+
+      function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, (tag) => {
+          const chars = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#39;",
+            '"': "&quot;",
+          };
+          return chars[tag] || tag;
+        });
+      }
+
+      generateQuizButton.addEventListener("click", async () => {
+        const quizTopic = quizTopicInput.value.trim();
+        const numQuestions = parseInt(numQuestionsInput.value);
+
+        if (!quizTopic) {
+          alert("Please enter a quiz topic!");
+          return;
+        }
+
+        if (isNaN(numQuestions) || numQuestions < 1) {
+          alert("Please enter a valid number of questions!");
+          return;
+        }
+
+        outputArea.classList.remove("hidden");
+        quizContainer.innerHTML = "";
+        loading.classList.remove("hidden");
+        errorArea.textContent = "";
+
+        const prompt = `Generate a quiz with ${numQuestions} multiple-choice questions about ${quizTopic}. Each question MUST follow this EXACT format, with no variations or extra text before, after, or within the question blocks: 
+---QUESTION_START---
+Question: [The question text]
+Options:
+A) [Option A]
+B) [Option B]
+C) [Option C]
+D) [Option D]
+Answer: [The correct answer - A, B, C, or D]
+---QUESTION_END---
+The entire response MUST start with '## ${quizTopic}' and consist ONLY of these question blocks separated by exactly '---QUESTION_END---'. Do not include any introductory or concluding remarks. Ensure each 'Options:' line is followed immediately by the lettered options on separate lines as shown. The 'Answer:' line should contain only the single correct letter.`;
+
+        try {
+          const response = await fetch(
+            "https://openrouter.ai/api/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: "google/gemini-pro", // Keeping this for the API call
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "You are an AI quiz generator. Follow the user's instructions to create multiple-choice quizzes. Ensure each question has a 'Question:', 'Options:' (with A, B, C, D), and 'Answer: [A-D]' format, and questions are separated by '---QUESTION_END---'.",
+                  },
+                  { role: "user", content: prompt },
+                ],
+                max_tokens: 2500,
+              }),
+            }
+          );
+
+          const data = await response.json();
+          if (!response.ok || !data.choices || !data.choices.length) {
+            throw new Error(
+              data.error?.message || "API request failed to generate quiz."
+            );
+          }
+
+          const aiResponse =
+            data.choices[0]?.message?.content || "Failed to generate quiz.";
+          const safeResponse = escapeHTML(aiResponse);
+
+          const questionBlocks = safeResponse
+            .split("---QUESTION_END---")
+            .filter((block) => block.trim() !== "");
+
+          const questions = questionBlocks
+            .map((block) => {
+              const questionMatch = block.match(
+                /Question:\s*(.+?)(?:\nOptions:|$)/s
+              );
+              const optionsMatch = block.match(
+                /Options:\s*([A-D]\)\s*.+(?:\n[A-D]\)\s*.+){3})/s
+              );
+              const answerMatch = block.match(/Answer:\s*([A-D])/i);
+
+              if (questionMatch && optionsMatch && answerMatch) {
+                const questionText = questionMatch[1].trim();
+                const answer = answerMatch[1].toUpperCase();
+                const optionsRaw = optionsMatch[1];
+                const optionRegex = /^[A-D]\)\s*(.+)$/gm;
+                let option;
+                const optionsList = [];
+                while ((option = optionRegex.exec(optionsRaw)) !== null) {
+                  optionsList.push(option[1].trim());
+                }
+
+                if (optionsList.length === 4) {
+                  return {
+                    question: questionText,
+                    options: optionsList,
+                    answer: answer,
+                  };
+                }
+              }
+              return null;
+            })
+            .filter((q) => q !== null);
+
+          if (questions.length > 0) {
+            let quizHTML = "";
+            questions.forEach((q, index) => {
+              quizHTML += `<div class="question"><h3>Question ${index + 1}: ${
+                q.question
+              }</h3><ul>`;
+              q.options.forEach((option, i) => {
+                const letter = String.fromCharCode(65 + i); // A, B, C, D
+                quizHTML += `<li>${letter}) ${option}</li>`;
+              });
+              quizHTML += `<p><strong>Answer:</strong> ${q.answer}</p></ul></div>`;
+            });
+            quizContainer.innerHTML = quizHTML;
+          } else {
+            quizContainer.innerHTML =
+              "<p>Could not parse the generated quiz. The AI's response format was unexpected (likely due to using GEMINI 2.5 PRO EXPERIMENTAL, which may have unstable output).</p>";
+          }
+        } catch (error) {
+          console.error("Error generating quiz:", error);
+          errorArea.textContent = `Failed to generate quiz: ${error.message}`;
+        } finally {
+          loading.classList.add("hidden");
+        }
+      });
+    </script>
+  </body>
+</html>
