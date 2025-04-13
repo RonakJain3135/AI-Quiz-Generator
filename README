@@ -1,0 +1,26 @@
+# 🧠 AI Quiz Generator (Powered by Gemini 2.5 Pro)
+
+An intelligent quiz generator that creates custom quizzes from user-input topics or text, using Google’s Gemini 2.5 Pro (Experimental). Ideal for educators, trainers, learners, and content creators looking to automate and enhance assessment creation.
+
+---
+
+## 🚀 Features
+
+- Generate multiple-choice, true/false, or fill-in-the-blank questions
+- Customizable difficulty levels (easy, medium, hard)
+- Answer key with explanations
+- Supports input as topic, text, or documents
+- Fast and scalable quiz generation via Gemini API
+
+---
+
+## 🛠️ Tech Stack
+
+- **LLM:** Gemini 2.5 Pro (Experimental)
+- **Frontend:** HTML, CSS
+- **Backend:** JAVASCRIPT
+- **API Integration:** OPENROUTER
+
+---
+
+
